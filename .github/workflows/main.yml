@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 18
 
-      - name: Clean previous mochawesome JSON and HTML reports
+      - name: Clean previous mochawesome JSON reports
         run: rm -rf cypress/reports/json/*
 
       - name: Install dependencies
@@ -35,6 +35,9 @@ jobs:
           else
             echo "Nenhum arquivo JSON encontrado, pulando geração do relatório."
           fi
+
+      - name: List generated report files
+        run: ls -la cypress/reports/json
 
       - name: Publish Report to GitHub Pages
         if: success() && github.ref == 'refs/heads/main'
