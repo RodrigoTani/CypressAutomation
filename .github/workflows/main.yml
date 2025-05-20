@@ -8,17 +8,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Clean previous mochawesome JSON and HTML reports
+      - name: Clean previous mochawesome reports
         run: rm -rf cypress/reports/json/* cypress/reports/html/*
 
       - name: Install dependencies
@@ -27,13 +24,26 @@ jobs:
       - name: Run Cypress tests
         run: npx cypress run
 
+      - name: List generated JSON reports
+        run: ls -l cypress/reports/json/
+
+      - name: Validate mochawesome JSON files
+        run: |
+          shopt -s nullglob
+          for f in cypress/reports/json/*.json; do
+            if [ ! -s "$f" ]; then
+              echo "$f is empty. Failing."
+              exit 1
+            fi
+            jq empty "$f" || { echo "$f is not valid JSON. Failing."; exit 1; }
+          done
+
       - name: Generate mochawesome report (merge + html)
         run: |
           npx mochawesome-merge "cypress/reports/json/*.json" > cypress/reports/json/report.json
           npx marge cypress/reports/json/report.json --reportDir cypress/reports/html --overwrite
 
-      - name: Publish Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./cypress/reports/html
