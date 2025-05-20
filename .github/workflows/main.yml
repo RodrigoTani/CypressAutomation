@@ -8,14 +8,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Clean previous mochawesome reports
+      - name: Clean previous mochawesome JSON and HTML reports
         run: rm -rf cypress/reports/json/* cypress/reports/html/*
 
       - name: Install dependencies
@@ -24,15 +27,18 @@ jobs:
       - name: Run Cypress tests
         run: npx cypress run
 
-      - name: List generated JSON reports
-        run: ls -l cypress/reports/json/
-
       - name: Generate mochawesome report (merge + html)
         run: |
-          npx mochawesome-merge "cypress/reports/json/*.json" > cypress/reports/json/report.json
-          npx marge cypress/reports/json/report.json --reportDir cypress/reports/html --overwrite
+          if ls cypress/reports/json/*.json 1> /dev/null 2>&1; then
+            npx mochawesome-merge "cypress/reports/json/*.json" > cypress/reports/json/report.json
+            npx marge cypress/reports/json/report.json --reportDir cypress/reports/html --overwrite
+          else
+            echo "Nenhum arquivo JSON encontrado, pulando geração do relatório."
+          fi
 
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Publish Report to GitHub Pages
+        if: success() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./cypress/reports/html
