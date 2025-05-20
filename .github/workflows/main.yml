@@ -52,7 +52,7 @@ jobs:
         run: ls -la cypress/reports/html
 
       - name: Upload Mochawesome HTML report artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@e1bf5b5b7e9f8ae1d47f19a1a1d5d9e09e9d0c72
         with:
           name: mochawesome-report
           path: cypress/reports/html
