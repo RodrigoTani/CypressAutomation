@@ -9,10 +9,10 @@ module.exports = defineConfig({
     embeddedScreenshots: true,
     inlineAssets: true,
     saveAllAttempts: false,
-    reportDir: 'cypress/reports',
-    overwrite: false,        // importante para não sobrescrever relatórios anteriores
-    html: false,             // desativa o html para gerar só json (merge usa json)
-    json: true               // gera arquivo json que será usado para merge
+    reportDir: 'cypress/reports/json',  // <- aqui só JSON
+    overwrite: false,
+    html: false,
+    json: true
   },
   e2e: {
     setupNodeEvents(on, config) {
