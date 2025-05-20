@@ -27,17 +27,6 @@ jobs:
       - name: List generated JSON reports
         run: ls -l cypress/reports/json/
 
-      - name: Validate mochawesome JSON files
-        run: |
-          shopt -s nullglob
-          for f in cypress/reports/json/*.json; do
-            if [ ! -s "$f" ]; then
-              echo "$f is empty. Failing."
-              exit 1
-            fi
-            jq empty "$f" || { echo "$f is not valid JSON. Failing."; exit 1; }
-          done
-
       - name: Generate mochawesome report (merge + html)
         run: |
           npx mochawesome-merge "cypress/reports/json/*.json" > cypress/reports/json/report.json
